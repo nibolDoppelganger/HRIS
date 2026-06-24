@@ -1,0 +1,6 @@
+{
+  "name": "Insan APU HR",
+  "description": "Sistem Informasi Kepegawaian dan Manajemen SDM terpadu untuk Insan APU LAZWaf Al Azhar dengan visualisasi data interaktif, manajemen data karyawan, dan dashboard komprehensif.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

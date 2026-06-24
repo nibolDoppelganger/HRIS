@@ -1,0 +1,28 @@
+---
+export const prerender = true;
+
+import PublicLayout from '../layouts/PublicLayout.astro';
+import { LandingHero } from '../components/landing/LandingHero';
+import { LandingStats } from '../components/landing/LandingStats';
+import { LandingAbout } from '../components/landing/LandingAbout';
+import { RecruitmentBanner } from '../components/landing/RecruitmentBanner';
+import { mockDB } from '../lib/api';
+
+// Retrieve settings for tagline & description
+const settings = mockDB.getSettings();
+const showStats = settings.landing_show_stats === 'true';
+---
+
+<PublicLayout title="Beranda">
+  <LandingHero 
+    tagline={settings.landing_tagline} 
+    deskripsi={settings.landing_deskripsi} 
+    client:load 
+  />
+  
+  {showStats && <LandingStats client:load />}
+  
+  <LandingAbout client:load />
+  
+  <RecruitmentBanner client:load />
+</PublicLayout>

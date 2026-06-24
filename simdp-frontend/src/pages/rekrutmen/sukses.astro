@@ -1,0 +1,44 @@
+---
+import PublicLayout from '../../layouts/PublicLayout.astro';
+
+const ticket = Astro.url.searchParams.get('ticket') || 'REK-2026-XXXX';
+const name = Astro.url.searchParams.get('name') || 'Pelamar';
+const email = Astro.url.searchParams.get('email') || 'email@example.com';
+---
+
+<PublicLayout title="Pendaftaran Berhasil">
+  <div class="max-w-xl mx-auto py-12 sm:py-16 px-4 sm:px-6 text-center my-6 sm:my-10 bg-white rounded-3xl border border-slate-100 p-6 sm:p-8 shadow-xl animate-fade-in-up">
+    <div class="w-16 h-16 bg-blue-50 text-[#0f2557] rounded-full flex items-center justify-center text-3xl mx-auto mb-6 shadow-inner">
+      ✓
+    </div>
+    <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">Pendaftaran Relawan Berhasil!</h1>
+    <p class="text-sm text-slate-500 font-medium mt-2">Terima kasih atas niat baik Anda untuk bergabung bersama kami.</p>
+
+    <!-- Ticket Card -->
+    <div class="my-8 p-6 bg-slate-50 rounded-2xl border border-slate-100 border-dashed max-w-sm mx-auto animate-scale-in delay-200">
+      <span class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Nomor Pendaftaran</span>
+      <span class="block text-xl sm:text-2xl font-extrabold text-[#0f2557] tracking-wider font-mono">{ticket}</span>
+    </div>
+
+    <div class="text-left bg-blue-50/30 rounded-2xl p-5 sm:p-6 border border-blue-100/50 mb-8 text-sm text-slate-600 leading-relaxed max-w-md mx-auto space-y-3 animate-fade-in-up delay-300">
+      <p>
+        Halo <strong>{name}</strong>, kami telah menerima berkas pendaftaran Anda.
+      </p>
+      <p>
+        Ringkasan informasi dan proses selanjutnya telah kami kirimkan ke email Anda: <strong>{email}</strong>.
+      </p>
+      <p>
+        Tim HRD LAZWaf Al Azhar akan menyeleksi berkas Anda dalam waktu <strong>7-14 hari kerja</strong>. Jika lolos seleksi berkas, kami akan menghubungi Anda untuk tahap wawancara.
+      </p>
+    </div>
+
+    <div class="flex gap-4 justify-center">
+      <a
+        href="/"
+        class="px-5 py-2.5 text-sm font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all duration-200"
+      >
+        Kembali ke Beranda
+      </a>
+    </div>
+  </div>
+</PublicLayout>

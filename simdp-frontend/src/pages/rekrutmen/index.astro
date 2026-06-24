@@ -1,0 +1,19 @@
+---
+export const prerender = true;
+
+import PublicLayout from '../../layouts/PublicLayout.astro';
+import { RecruitmentForm } from '../../components/rekrutmen/RecruitmentForm';
+---
+
+<PublicLayout title="Pendaftaran Relawan">
+  <div class="bg-gradient-to-br from-[#0a1628] via-[#0f2557] to-[#1e3a7a] py-12 sm:py-16 text-center text-white relative overflow-hidden">
+    <div class="absolute inset-0 opacity-[0.04] bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-[size:20px_20px]"></div>
+    <div class="absolute -right-24 -top-12 w-48 h-48 bg-blue-400/10 rounded-full blur-2xl animate-float"></div>
+    <div class="relative max-w-2xl mx-auto px-4">
+      <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight animate-fade-in-up">Pendaftaran Relawan LAZWaf Al Azhar</h1>
+      <p class="text-blue-100/70 text-xs sm:text-sm mt-2 font-light animate-fade-in-up delay-200">Isi formulir di bawah ini untuk mendaftar sebagai relawan. Pastikan semua data yang Anda masukkan benar dan lengkap.</p>
+    </div>
+  </div>
+
+  <RecruitmentForm client:load />
+</PublicLayout>
