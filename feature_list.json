@@ -1,0 +1,35 @@
+[
+  {
+    "id": "frontend-baseline",
+    "priority": 1,
+    "area": "infrastructure",
+    "title": "Astro frontend baseline",
+    "user_visible_behavior": "Frontend builds and can serve basic pages.",
+    "status": "passing",
+    "verification": "Run npm run build in simdp-frontend without errors.",
+    "evidence": "simdp-frontend exists and has dependencies.",
+    "notes": "Base generated, needs continuous verification."
+  },
+  {
+    "id": "gas-backend-logic",
+    "priority": 2,
+    "area": "backend",
+    "title": "GAS Router and Handlers",
+    "user_visible_behavior": "API returns correct JSON format for valid requests.",
+    "status": "passing",
+    "verification": "Review Code.gs to ensure handleApiRequest routes correctly.",
+    "evidence": "Code.gs router is defined.",
+    "notes": "Pending integration testing."
+  },
+  {
+    "id": "auth-ui",
+    "priority": 3,
+    "area": "auth",
+    "title": "Authentication Layout",
+    "user_visible_behavior": "User can see login page and authenticate to view dashboard.",
+    "status": "not_started",
+    "verification": "Load /login, enter mock credentials, verify redirect to /dashboard.",
+    "evidence": "",
+    "notes": "Needs AppLayout and AuthLayout implementation."
+  }
+]

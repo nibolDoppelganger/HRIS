@@ -22,6 +22,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentPath }) => {
     { id: "performance", label: "Penilaian Kinerja", icon: "trending_up", href: "/performance" },
     { id: "administrasi-hr", label: "Administrasi HR", icon: "admin_panel_settings", href: "/administrasi-hr" },
     { id: "laporan", label: "Laporan", icon: "description", href: "/laporan" },
+    { id: "akun", label: "Hak Akses & Akun", icon: "security", href: "/akun" },
     { id: "pengaturan", label: "Pengaturan", icon: "settings", href: "/settings" },
   ];
 

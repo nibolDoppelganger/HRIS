@@ -151,8 +151,8 @@ export const RecruitmentForm: React.FC = () => {
   if (loadingStatus) {
     return (
       <div className="max-w-2xl mx-auto py-24 flex flex-col items-center justify-center">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#1e3a7a]"></div>
-        <p className="text-sm text-slate-500 mt-4 font-semibold">Memeriksa status pendaftaran...</p>
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#0053d0]"></div>
+        <p className="text-sm text-[#737686] mt-4 font-semibold">Memeriksa status pendaftaran...</p>
       </div>
     );
   }
@@ -160,16 +160,16 @@ export const RecruitmentForm: React.FC = () => {
   if (isOpen === false) {
     return (
       <div className="max-w-xl mx-auto py-20 px-6 text-center">
-        <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 mx-auto text-3xl mb-6 shadow-inner">
+        <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center text-[#737686] mx-auto text-3xl mb-6 shadow-inner">
           🔒
         </div>
-        <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">Pendaftaran Relawan Sedang Ditutup</h2>
-        <p className="text-slate-500 font-medium leading-relaxed mt-4">
-          Saat ini kami tidak sedang membuka rekrutmen relawan baru. Silakan pantau terus website dan media sosial resmi LAZWaf Al Azhar untuk informasi pembukaan angkatan berikutnya.
+        <h2 className="text-2xl font-extrabold text-[#0b1c30] tracking-tight">Pendaftaran Amil Zakat Sedang Ditutup</h2>
+        <p className="text-[#737686] font-medium leading-relaxed mt-4">
+          Saat ini kami tidak sedang membuka rekrutmen amil zakat baru. Silakan pantau terus website dan media sosial resmi LAZWaf Al Azhar untuk informasi pembukaan angkatan berikutnya.
         </p>
         <a
           href="/"
-          className="inline-block px-5 py-2.5 text-sm font-bold text-white bg-[#1e3a7a] hover:bg-[#0f2557] rounded-xl transition-all shadow-md mt-8"
+          className="inline-block px-5 py-2.5 text-sm font-bold text-white bg-[#0053d0] hover:bg-blue-700 rounded-xl transition-all shadow-md mt-8"
         >
           Kembali ke Beranda
         </a>
@@ -178,16 +178,16 @@ export const RecruitmentForm: React.FC = () => {
   }
 
   return (
-    <div className="max-w-2xl mx-auto bg-white rounded-3xl border border-slate-100 p-8 sm:p-10 shadow-xl my-10">
+    <div className="max-w-2xl mx-auto bg-white rounded-[32px] border border-blue-50/50 p-8 sm:p-10 shadow-xl shadow-blue-500/5 my-10">
       {/* Form Progress Header */}
       <div className="mb-8">
-        <div className="flex justify-between items-center text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+        <div className="flex justify-between items-center text-xs font-bold uppercase tracking-wider text-[#737686] mb-2">
           <span>Langkah {step} dari 3</span>
           <span>{step === 1 ? 'Data Diri' : step === 2 ? 'Pendidikan & Keahlian' : 'Keterangan Gabung'}</span>
         </div>
         <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
           <div 
-            className="h-full bg-[#1e3a7a] transition-all duration-300"
+            className="h-full bg-[#0053d0] transition-all duration-300"
             style={{ width: `${(step / 3) * 100}%` }}
           ></div>
         </div>
@@ -203,16 +203,16 @@ export const RecruitmentForm: React.FC = () => {
         {/* STEP 1: DATA DIRI */}
         {step === 1 && (
           <div className="space-y-5">
-            <h3 className="text-lg font-bold text-slate-900">Section 1: Data Diri Pelamar</h3>
+            <h3 className="text-lg font-bold text-[#0b1c30]">Section 1: Data Diri Pelamar</h3>
             
             <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Nama Lengkap *</label>
+              <label className="block text-xs font-bold text-[#737686] uppercase tracking-wider mb-2">Nama Lengkap *</label>
               <input
                 type="text"
                 name="nama_lengkap"
                 value={formData.nama_lengkap}
                 onChange={handleInputChange}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#1e3a7a] focus:ring-2 focus:ring-blue-500/10 text-sm"
+                className="w-full px-4 py-2.5 rounded-xl border border-blue-100 bg-[#f8f9ff] focus:outline-none focus:border-[#0053d0] focus:bg-white text-sm"
                 placeholder="Masukkan nama lengkap Anda"
               />
               {errors.nama_lengkap && <p className="text-xs text-rose-600 font-semibold mt-1.5">{errors.nama_lengkap}</p>}
@@ -220,25 +220,25 @@ export const RecruitmentForm: React.FC = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Email *</label>
+                <label className="block text-xs font-bold text-[#737686] uppercase tracking-wider mb-2">Email *</label>
                 <input
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#1e3a7a] focus:ring-2 focus:ring-blue-500/10 text-sm"
+                  className="w-full px-4 py-2.5 rounded-xl border border-blue-100 bg-[#f8f9ff] focus:outline-none focus:border-[#0053d0] focus:bg-white text-sm"
                   placeholder="name@example.com"
                 />
                 {errors.email && <p className="text-xs text-rose-600 font-semibold mt-1.5">{errors.email}</p>}
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">No. Handphone (WA) *</label>
+                <label className="block text-xs font-bold text-[#737686] uppercase tracking-wider mb-2">No. Handphone (WA) *</label>
                 <input
                   type="text"
                   name="no_hp"
                   value={formData.no_hp}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#1e3a7a] focus:ring-2 focus:ring-blue-500/10 text-sm"
+                  className="w-full px-4 py-2.5 rounded-xl border border-blue-100 bg-[#f8f9ff] focus:outline-none focus:border-[#0053d0] focus:bg-white text-sm"
                   placeholder="Contoh: 081280XXXXXX"
                 />
                 {errors.no_hp && <p className="text-xs text-rose-600 font-semibold mt-1.5">{errors.no_hp}</p>}
@@ -247,50 +247,50 @@ export const RecruitmentForm: React.FC = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="sm:col-span-2">
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Tempat Lahir *</label>
+                <label className="block text-xs font-bold text-[#737686] uppercase tracking-wider mb-2">Tempat Lahir *</label>
                 <input
                   type="text"
                   name="tempat_lahir"
                   value={formData.tempat_lahir}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#1e3a7a] focus:ring-2 focus:ring-blue-500/10 text-sm"
+                  className="w-full px-4 py-2.5 rounded-xl border border-blue-100 bg-[#f8f9ff] focus:outline-none focus:border-[#0053d0] focus:bg-white text-sm"
                   placeholder="Kota tempat lahir"
                 />
                 {errors.tempat_lahir && <p className="text-xs text-rose-600 font-semibold mt-1.5">{errors.tempat_lahir}</p>}
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Tanggal Lahir *</label>
+                <label className="block text-xs font-bold text-[#737686] uppercase tracking-wider mb-2">Tanggal Lahir *</label>
                 <input
                   type="date"
                   name="tanggal_lahir"
                   value={formData.tanggal_lahir}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#1e3a7a] focus:ring-2 focus:ring-blue-500/10 text-sm"
+                  className="w-full px-4 py-2.5 rounded-xl border border-blue-100 bg-[#f8f9ff] focus:outline-none focus:border-[#0053d0] focus:bg-white text-sm"
                 />
                 {errors.tanggal_lahir && <p className="text-xs text-rose-600 font-semibold mt-1.5">{errors.tanggal_lahir}</p>}
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Jenis Kelamin *</label>
+              <label className="block text-xs font-bold text-[#737686] uppercase tracking-wider mb-2">Jenis Kelamin *</label>
               <div className="flex gap-4">
-                <label className="flex items-center gap-2 cursor-pointer bg-slate-50 px-4 py-2.5 rounded-xl border border-slate-100 flex-1 hover:bg-slate-100">
+                <label className="flex items-center gap-2 cursor-pointer bg-[#f8f9ff] px-4 py-2.5 rounded-xl border border-blue-50/50 flex-1 hover:bg-slate-100">
                   <input
                     type="radio"
                     name="gender"
                     checked={formData.gender === 'L'}
                     onChange={() => setFormData(p => ({ ...p, gender: 'L' }))}
-                    className="text-[#1e3a7a] focus:ring-[#1e3a7a]"
+                    className="text-[#0053d0] focus:ring-[#0053d0]"
                   />
                   <span className="text-sm font-semibold text-slate-700">Laki-Laki</span>
                 </label>
-                <label className="flex items-center gap-2 cursor-pointer bg-slate-50 px-4 py-2.5 rounded-xl border border-slate-100 flex-1 hover:bg-slate-100">
+                <label className="flex items-center gap-2 cursor-pointer bg-[#f8f9ff] px-4 py-2.5 rounded-xl border border-blue-50/50 flex-1 hover:bg-slate-100">
                   <input
                     type="radio"
                     name="gender"
                     checked={formData.gender === 'P'}
                     onChange={() => setFormData(p => ({ ...p, gender: 'P' }))}
-                    className="text-[#1e3a7a] focus:ring-[#1e3a7a]"
+                    className="text-[#0053d0] focus:ring-[#0053d0]"
                   />
                   <span className="text-sm font-semibold text-slate-700">Perempuan</span>
                 </label>
@@ -298,13 +298,13 @@ export const RecruitmentForm: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Alamat Lengkap *</label>
+              <label className="block text-xs font-bold text-[#737686] uppercase tracking-wider mb-2">Alamat Lengkap *</label>
               <textarea
                 name="alamat"
                 value={formData.alamat}
                 onChange={handleInputChange}
                 rows={3}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#1e3a7a] focus:ring-2 focus:ring-blue-500/10 text-sm"
+                className="w-full px-4 py-2.5 rounded-xl border border-blue-100 bg-[#f8f9ff] focus:outline-none focus:border-[#0053d0] focus:bg-white text-sm"
                 placeholder="Masukkan alamat lengkap domisili Anda saat ini"
               ></textarea>
               {errors.alamat && <p className="text-xs text-rose-600 font-semibold mt-1.5">{errors.alamat}</p>}
@@ -315,15 +315,15 @@ export const RecruitmentForm: React.FC = () => {
         {/* STEP 2: PENDIDIKAN & KEAHLIAN */}
         {step === 2 && (
           <div className="space-y-5">
-            <h3 className="text-lg font-bold text-slate-900">Section 2: Pendidikan & Keahlian</h3>
+            <h3 className="text-lg font-bold text-[#0b1c30]">Section 2: Pendidikan & Keahlian</h3>
 
             <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Pendidikan Terakhir *</label>
+              <label className="block text-xs font-bold text-[#737686] uppercase tracking-wider mb-2">Pendidikan Terakhir *</label>
               <select
                 name="pendidikan_terakhir"
                 value={formData.pendidikan_terakhir}
                 onChange={handleInputChange}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-[#1e3a7a] focus:ring-2 focus:ring-blue-500/10 text-sm"
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-[#0053d0] focus:ring-2 focus:ring-blue-500/10 text-sm"
               >
                 {['SMA/SMK', 'D3', 'S1', 'S2', 'S3'].map(lvl => (
                   <option key={lvl} value={lvl}>{lvl}</option>
@@ -333,25 +333,25 @@ export const RecruitmentForm: React.FC = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Nama Institusi *</label>
+                <label className="block text-xs font-bold text-[#737686] uppercase tracking-wider mb-2">Nama Institusi *</label>
                 <input
                   type="text"
                   name="institusi"
                   value={formData.institusi}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#1e3a7a] focus:ring-2 focus:ring-blue-500/10 text-sm"
+                  className="w-full px-4 py-2.5 rounded-xl border border-blue-100 bg-[#f8f9ff] focus:outline-none focus:border-[#0053d0] focus:bg-white text-sm"
                   placeholder="Contoh: Universitas Indonesia"
                 />
                 {errors.institusi && <p className="text-xs text-rose-600 font-semibold mt-1.5">{errors.institusi}</p>}
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Jurusan *</label>
+                <label className="block text-xs font-bold text-[#737686] uppercase tracking-wider mb-2">Jurusan *</label>
                 <input
                   type="text"
                   name="jurusan"
                   value={formData.jurusan}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#1e3a7a] focus:ring-2 focus:ring-blue-500/10 text-sm"
+                  className="w-full px-4 py-2.5 rounded-xl border border-blue-100 bg-[#f8f9ff] focus:outline-none focus:border-[#0053d0] focus:bg-white text-sm"
                   placeholder="Contoh: Ilmu Komunikasi"
                 />
                 {errors.jurusan && <p className="text-xs text-rose-600 font-semibold mt-1.5">{errors.jurusan}</p>}
@@ -359,13 +359,13 @@ export const RecruitmentForm: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Keahlian / Skill Spesifik *</label>
+              <label className="block text-xs font-bold text-[#737686] uppercase tracking-wider mb-2">Keahlian / Skill Spesifik *</label>
               <textarea
                 name="keahlian"
                 value={formData.keahlian}
                 onChange={handleInputChange}
                 rows={4}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#1e3a7a] focus:ring-2 focus:ring-blue-500/10 text-sm"
+                className="w-full px-4 py-2.5 rounded-xl border border-blue-100 bg-[#f8f9ff] focus:outline-none focus:border-[#0053d0] focus:bg-white text-sm"
                 placeholder="Deskripsikan keahlian relevan yang Anda miliki (Desain grafis, Excel formulas, copywriting, IT support, dll. Minimal 30 karakter)"
               ></textarea>
               {errors.keahlian && <p className="text-xs text-rose-600 font-semibold mt-1.5">{errors.keahlian}</p>}
@@ -376,16 +376,16 @@ export const RecruitmentForm: React.FC = () => {
         {/* STEP 3: MOTIVASI & KETERSEDIAAN */}
         {step === 3 && (
           <div className="space-y-5">
-            <h3 className="text-lg font-bold text-slate-900">Section 3: Motivasi & Kesediaan</h3>
+            <h3 className="text-lg font-bold text-[#0b1c30]">Section 3: Motivasi & Kesediaan</h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Divisi yang Diminati *</label>
+                <label className="block text-xs font-bold text-[#737686] uppercase tracking-wider mb-2">Divisi yang Diminati *</label>
                 <select
                   name="divisi_diminati"
                   value={formData.divisi_diminati}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-[#1e3a7a] focus:ring-2 focus:ring-blue-500/10 text-sm"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-[#0053d0] focus:ring-2 focus:ring-blue-500/10 text-sm"
                 >
                   {availableDivisions.map(div => (
                     <option key={div} value={div}>{div}</option>
@@ -394,12 +394,12 @@ export const RecruitmentForm: React.FC = () => {
                 {errors.divisi_diminati && <p className="text-xs text-rose-600 font-semibold mt-1.5">{errors.divisi_diminati}</p>}
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Durasi Kesediaan Gabung *</label>
+                <label className="block text-xs font-bold text-[#737686] uppercase tracking-wider mb-2">Durasi Kesediaan Gabung *</label>
                 <select
                   name="durasi_kesediaan"
                   value={formData.durasi_kesediaan}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-[#1e3a7a] focus:ring-2 focus:ring-blue-500/10 text-sm"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-[#0053d0] focus:ring-2 focus:ring-blue-500/10 text-sm"
                 >
                   {['1 bulan', '3 bulan', '6 bulan', '1 tahun', 'Fleksibel'].map(dur => (
                     <option key={dur} value={dur}>{dur}</option>
@@ -409,51 +409,51 @@ export const RecruitmentForm: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Motivasi Bergabung *</label>
+              <label className="block text-xs font-bold text-[#737686] uppercase tracking-wider mb-2">Motivasi Bergabung *</label>
               <textarea
                 name="motivasi"
                 value={formData.motivasi}
                 onChange={handleInputChange}
                 rows={4}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#1e3a7a] focus:ring-2 focus:ring-blue-500/10 text-sm"
-                placeholder="Tuliskan motivasi utama Anda ingin bergabung sebagai relawan di LAZWaf Al Azhar. (Minimal 100 karakter)"
+                className="w-full px-4 py-2.5 rounded-xl border border-blue-100 bg-[#f8f9ff] focus:outline-none focus:border-[#0053d0] focus:bg-white text-sm"
+                placeholder="Tuliskan motivasi utama Anda ingin bergabung sebagai amil zakat di LAZWaf Al Azhar. (Minimal 100 karakter)"
               ></textarea>
               {errors.motivasi && <p className="text-xs text-rose-600 font-semibold mt-1.5">{errors.motivasi}</p>}
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Pengalaman Kegiatan Relawan Sebelumnya</label>
+              <label className="block text-xs font-bold text-[#737686] uppercase tracking-wider mb-2">Pengalaman Kegiatan Amil Zakat Sebelumnya</label>
               <textarea
                 name="pengalaman_relawan"
                 value={formData.pengalaman_relawan}
                 onChange={handleInputChange}
                 rows={2}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#1e3a7a] focus:ring-2 focus:ring-blue-500/10 text-sm"
+                className="w-full px-4 py-2.5 rounded-xl border border-blue-100 bg-[#f8f9ff] focus:outline-none focus:border-[#0053d0] focus:bg-white text-sm"
                 placeholder="Sebutkan jika ada (opsional)"
               ></textarea>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Siap Mulai Tanggal *</label>
+                <label className="block text-xs font-bold text-[#737686] uppercase tracking-wider mb-2">Siap Mulai Tanggal *</label>
                 <input
                   type="date"
                   name="tersedia_mulai"
                   value={formData.tersedia_mulai}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#1e3a7a] focus:ring-2 focus:ring-blue-500/10 text-sm"
+                  className="w-full px-4 py-2.5 rounded-xl border border-blue-100 bg-[#f8f9ff] focus:outline-none focus:border-[#0053d0] focus:bg-white text-sm"
                 />
                 {errors.tersedia_mulai && <p className="text-xs text-rose-600 font-semibold mt-1.5">{errors.tersedia_mulai}</p>}
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Unggah CV Pelamar (PDF, maks 2MB) *</label>
+                <label className="block text-xs font-bold text-[#737686] uppercase tracking-wider mb-2">Unggah CV Pelamar (PDF, maks 2MB) *</label>
                 <input
                   type="file"
                   accept=".pdf"
                   onChange={handleFileChange}
-                  className="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-[#1e3a7a] hover:file:bg-blue-100 border border-dashed border-slate-200 p-2.5 rounded-xl bg-slate-50/50"
+                  className="w-full text-sm text-[#737686] file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-[#0053d0] hover:file:bg-blue-100 border border-dashed border-slate-200 p-2.5 rounded-xl bg-[#f8f9ff]/50"
                 />
-                {cvFile && <p className="text-xs text-[#1e3a7a] font-semibold mt-1.5">✓ {cvFile.name}</p>}
+                {cvFile && <p className="text-xs text-[#0053d0] font-semibold mt-1.5">✓ {cvFile.name}</p>}
                 {errors.cv && <p className="text-xs text-rose-600 font-semibold mt-1.5">{errors.cv}</p>}
               </div>
             </div>
@@ -461,12 +461,12 @@ export const RecruitmentForm: React.FC = () => {
         )}
 
         {/* Footer Navigation Buttons */}
-        <div className="flex justify-between items-center pt-6 border-t border-slate-100 mt-6">
+        <div className="flex justify-between items-center pt-6 border-t border-blue-50/50 mt-6">
           {step > 1 ? (
             <button
               type="button"
               onClick={handlePrev}
-              className="px-5 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-all"
+              className="px-5 py-2.5 text-sm font-semibold text-[#434654] hover:bg-slate-100 rounded-xl transition-all"
             >
               Kembali
             </button>
@@ -478,7 +478,7 @@ export const RecruitmentForm: React.FC = () => {
             <button
               type="button"
               onClick={handleNext}
-              className="px-5 py-2.5 text-sm font-bold text-white bg-[#0f2557] hover:bg-[#1e3a7a] rounded-xl transition-all duration-300 shadow-md shadow-blue-900/10"
+              className="px-5 py-2.5 text-sm font-bold text-white bg-[#0053d0] hover:bg-blue-800 rounded-xl transition-all duration-300 shadow-md shadow-blue-900/10"
             >
               Lanjutkan
             </button>
@@ -486,7 +486,7 @@ export const RecruitmentForm: React.FC = () => {
             <button
               type="submit"
               disabled={submitting}
-              className="px-6 py-2.5 text-sm font-bold text-white bg-[#1e3a7a] hover:bg-[#0f2557] disabled:bg-blue-300 rounded-xl transition-all shadow-md flex items-center gap-2"
+              className="px-6 py-2.5 text-sm font-bold text-white bg-[#0053d0] hover:bg-blue-800 disabled:bg-blue-300 rounded-xl transition-all shadow-md flex items-center gap-2"
             >
               {submitting ? (
                 <>

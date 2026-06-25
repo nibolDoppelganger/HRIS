@@ -19,6 +19,18 @@ export const AdministrasiHRPanel: React.FC = () => {
     { id: 3, name: 'Andi Wijaya', role: 'Relawan', type: 'Offboarding', progress: 40, status: 'In Progress' },
   ];
 
+  const mockAset = [
+    { id: 'AST-001', nama: 'Laptop Lenovo ThinkPad', kategori: 'Laptop', dipinjamkanKe: 'Rahmatullah Sidik', tanggalPinjam: '2024-01-15', kondisi: 'Baik' },
+    { id: 'AST-002', nama: 'HP Samsung Galaxy A54', kategori: 'HP Dinas', dipinjamkanKe: 'Ahmad Maulana', tanggalPinjam: '2025-03-10', kondisi: 'Baik' },
+    { id: 'AST-003', nama: 'Motor Honda Vario 160', kategori: 'Kendaraan', dipinjamkanKe: 'Budi Santoso', tanggalPinjam: '2023-11-20', kondisi: 'Rusak Ringan' },
+  ];
+
+  const mockHelpdesk = [
+    { id: 'TKT-101', kategori: 'Cuti', subjek: 'Kendala Pengajuan Cuti Tahunan', pengaju: 'Siti Aminah', tanggal: '2026-06-20', status: 'Open' },
+    { id: 'TKT-102', kategori: 'Payslip', subjek: 'Komponen BPJS Tidak Sesuai', pengaju: 'Rina Gunawan', tanggal: '2026-06-22', status: 'In Progress' },
+    { id: 'TKT-103', kategori: 'Reimbursement', subjek: 'Klaim Transport Ditolak', pengaju: 'Andi Wijaya', tanggal: '2026-06-18', status: 'Resolved' },
+  ];
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -117,12 +129,61 @@ export const AdministrasiHRPanel: React.FC = () => {
       )}
 
       {activeTab === 'aset' && (
-        <div className="bg-white rounded-[24px] shadow-sm border border-blue-50/50 p-16 text-center">
-          <div className="w-16 h-16 bg-blue-50 text-[#0053d0] rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="material-symbols-outlined text-3xl">construction</span>
+        <div className="bg-white rounded-[24px] shadow-sm border border-blue-50/50 overflow-hidden">
+          <div className="p-6 border-b border-blue-50/50 flex justify-between items-center bg-[#f8f9ff]/50">
+            <div>
+              <h3 className="font-bold text-sm text-[#0b1c30]">Daftar Aset Perusahaan</h3>
+              <p className="text-[10px] text-[#737686] mt-0.5">Laptop, Kendaraan, dan Inventaris Kantor yang dipinjamkan.</p>
+            </div>
+            <button className="text-xs font-bold text-white bg-[#0053d0] hover:bg-blue-700 px-4 py-2 rounded-full shadow-sm shadow-blue-500/20 transition-all flex items-center gap-1">
+              <span className="material-symbols-outlined text-[16px]">add</span> Tambah Aset
+            </button>
           </div>
-          <h3 className="font-sans text-lg font-extrabold text-[#0b1c30]">Modul Manajemen Aset Belum Tersedia</h3>
-          <p className="text-sm text-[#737686] mt-2 max-w-md mx-auto">Fitur pencatatan laptop, kendaraan, dan inventaris kantor akan segera dirilis pada pembaruan mendatang.</p>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead>
+                <tr className="border-b border-blue-50 text-[#737686] font-bold uppercase tracking-wider bg-[#f8f9ff]/20">
+                  <th className="px-6 py-4">Kode Aset</th>
+                  <th className="px-6 py-4">Nama Aset</th>
+                  <th className="px-6 py-4">Kategori</th>
+                  <th className="px-6 py-4">Dipinjamkan Ke</th>
+                  <th className="px-6 py-4">Kondisi</th>
+                  <th className="px-6 py-4 text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-blue-50/40">
+                {mockAset.map((aset) => (
+                  <tr key={aset.id} className="hover:bg-[#eff4ff]/20">
+                    <td className="px-6 py-4 font-mono font-bold text-[#0053d0]">{aset.id}</td>
+                    <td className="px-6 py-4 font-bold text-[#0b1c30]">{aset.nama}</td>
+                    <td className="px-6 py-4 text-[#434654]">{aset.kategori}</td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center text-[8px] font-bold text-[#0053d0]">
+                          {aset.dipinjamkanKe.charAt(0)}
+                        </div>
+                        <span className="font-medium text-[#0b1c30]">{aset.dipinjamkanKe}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`px-3 py-1 rounded-full text-[10px] font-bold border ${
+                        aset.kondisi === 'Baik' 
+                          ? 'bg-emerald-50 text-emerald-700 border-emerald-100' 
+                          : 'bg-amber-50 text-amber-700 border-amber-100'
+                      }`}>
+                        {aset.kondisi}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <button className="text-[10px] font-bold text-[#0053d0] bg-[#eff4ff] hover:bg-blue-100 px-3 py-1.5 rounded-full transition-colors">
+                        Detail
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
@@ -152,12 +213,77 @@ export const AdministrasiHRPanel: React.FC = () => {
       )}
 
       {activeTab === 'helpdesk' && (
-        <div className="bg-white rounded-[24px] shadow-sm border border-blue-50/50 p-16 text-center">
-          <div className="w-16 h-16 bg-blue-50 text-[#0053d0] rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="material-symbols-outlined text-3xl">headset_mic</span>
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="lg:col-span-1 space-y-4">
+            <div className="bg-gradient-to-br from-[#0053d0] to-blue-800 rounded-[20px] shadow-sm p-6 text-white text-center relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-bl-full pointer-events-none"></div>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-blue-200 mb-1">Tiket Aktif</p>
+              <h3 className="font-sans text-4xl font-extrabold">24</h3>
+            </div>
+            
+            <div className="bg-white rounded-[20px] shadow-sm border border-blue-50/50 p-5 space-y-3">
+              <h4 className="font-bold text-xs text-[#0b1c30] uppercase tracking-wider mb-2">Filter Status</h4>
+              <button className="w-full flex justify-between items-center px-3 py-2 bg-blue-50/50 text-[#0053d0] font-bold text-xs rounded-xl border border-blue-100">
+                Semua Tiket <span className="bg-white px-2 py-0.5 rounded-full text-[10px]">128</span>
+              </button>
+              <button className="w-full flex justify-between items-center px-3 py-2 text-[#434654] font-medium hover:bg-[#f8f9ff] text-xs rounded-xl transition-colors">
+                Open <span className="bg-[#f8f9ff] px-2 py-0.5 rounded-full text-[10px]">12</span>
+              </button>
+              <button className="w-full flex justify-between items-center px-3 py-2 text-[#434654] font-medium hover:bg-[#f8f9ff] text-xs rounded-xl transition-colors">
+                In Progress <span className="bg-[#f8f9ff] px-2 py-0.5 rounded-full text-[10px]">12</span>
+              </button>
+              <button className="w-full flex justify-between items-center px-3 py-2 text-[#434654] font-medium hover:bg-[#f8f9ff] text-xs rounded-xl transition-colors">
+                Resolved <span className="bg-[#f8f9ff] px-2 py-0.5 rounded-full text-[10px]">104</span>
+              </button>
+            </div>
           </div>
-          <h3 className="font-sans text-lg font-extrabold text-[#0b1c30]">Panel HR Helpdesk</h3>
-          <p className="text-sm text-[#737686] mt-2 max-w-md mx-auto">Portal untuk merespons tiket bantuan dari karyawan (terhubung dengan menu Pusat Bantuan).</p>
+          
+          <div className="lg:col-span-3">
+            <div className="bg-white rounded-[24px] shadow-sm border border-blue-50/50 overflow-hidden">
+              <div className="p-6 border-b border-blue-50/50 flex justify-between items-center bg-[#f8f9ff]/50">
+                <h3 className="font-bold text-sm text-[#0b1c30]">Daftar Tiket Helpdesk</h3>
+                <div className="relative">
+                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#737686] text-lg">search</span>
+                  <input type="text" placeholder="Cari ID tiket atau subjek..." className="pl-10 pr-4 py-2 bg-white border border-blue-100 rounded-full text-xs w-[250px] focus:outline-none focus:border-[#0053d0] transition-colors" />
+                </div>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead>
+                    <tr className="border-b border-blue-50 text-[#737686] font-bold uppercase tracking-wider bg-[#f8f9ff]/20">
+                      <th className="px-6 py-4">ID Tiket</th>
+                      <th className="px-6 py-4">Subjek & Kategori</th>
+                      <th className="px-6 py-4">Pengaju</th>
+                      <th className="px-6 py-4">Tanggal</th>
+                      <th className="px-6 py-4">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-blue-50/40">
+                    {mockHelpdesk.map((tiket) => (
+                      <tr key={tiket.id} className="hover:bg-[#eff4ff]/20 cursor-pointer">
+                        <td className="px-6 py-4 font-mono font-bold text-[#0053d0]">{tiket.id}</td>
+                        <td className="px-6 py-4">
+                          <p className="font-bold text-[#0b1c30]">{tiket.subjek}</p>
+                          <p className="text-[10px] text-[#737686] mt-0.5">{tiket.kategori}</p>
+                        </td>
+                        <td className="px-6 py-4 text-[#434654] font-medium">{tiket.pengaju}</td>
+                        <td className="px-6 py-4 text-[#737686]">{tiket.tanggal}</td>
+                        <td className="px-6 py-4">
+                          <span className={`px-3 py-1 rounded-full text-[10px] font-bold border ${
+                            tiket.status === 'Open' ? 'bg-rose-50 text-rose-700 border-rose-100' :
+                            tiket.status === 'In Progress' ? 'bg-amber-50 text-amber-700 border-amber-100' :
+                            'bg-emerald-50 text-emerald-700 border-emerald-100'
+                          }`}>
+                            {tiket.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -1,7 +1,7 @@
 # PRD – Sistem Informasi Manajemen Data Pegawai
 ## Insan APU – LAZWaf Al Azhar (Google Apps Script)
 
-> **Versi:** 1.3.0 · **Tanggal:** 24 Juni 2026 · **Status:** Draft  
+> **Versi:** 1.4.0 · **Tanggal:** 25 Juni 2026 · **Status:** Draft  
 > **Platform:** Laravel 11 (Backend API) + Astro.js (Frontend) + MySQL  
 > **Sumber Data:** [Spreadsheet Pegawai LAZWaf Al Azhar](https://docs.google.com/spreadsheets/d/1VEbMDaiqXRTGUymB_uL7uip0OIe_qO0qnRdbd7j_FGs/edit?usp=sharing)
 
@@ -59,6 +59,7 @@
 - Fitur baru: **Rekrutmen & Talent Acquisition** (ATS, lowongan, manpower planning) dengan toggle on/off rekrutmen oleh Admin
 - Fitur baru: **Pengembangan Karyawan** (performance review, talent management, LMS pelatihan)
 - Backend diubah dari Google Apps Script ke **Laravel 11 + MySQL** untuk arsitektur yang lebih robust dan skalabel
+- Login disederhanakan menjadi **Email + OTP** — tidak ada password permanen, tidak ada Google OAuth; kode verifikasi 6 digit dikirim ke email kantor setiap kali login
 
 ---
 
@@ -225,7 +226,7 @@ Sistem harus membaca spreadsheet ini via Google Sheets API saat proses import. S
 | **Backend / API** | **Laravel 11** (PHP 8.3) – RESTful API dengan struktur MVC penuh |
 | **Database** | **MySQL 8** (via cPanel) — database relasional menggantikan Google Sheets sebagai penyimpanan utama |
 | **ORM** | Laravel Eloquent + Laravel Migrations & Seeders |
-| **Auth** | Laravel Sanctum (token-based API auth) + Google OAuth 2.0 via Laravel Socialite |
+| **Auth** | Email + OTP via Laravel Mail — Laravel Sanctum (Bearer Token, cookie HttpOnly) |
 | **Queue / Scheduler** | Laravel Queue (database driver) + Laravel Task Scheduler (`cron` via cPanel) |
 | **Storage Dokumen** | Laravel Storage — Google Drive via `google-drive` Flysystem adapter |
 | **Email** | Laravel Mail + SMTP (mis. Mailgun, Google Workspace SMTP, atau SMTP cPanel) |
@@ -241,7 +242,7 @@ Sistem harus membaca spreadsheet ini via Google Sheets API saat proses import. S
 | **Arsitektur enterprise-grade** | MVC + Service Layer + Repository Pattern — cocok untuk sistem HR yang kompleks dengan banyak modul |
 | **Database relasional penuh** | MySQL via Eloquent ORM: relasi antar tabel, transaksi, foreign key, query kompleks (join, group by, subquery) jauh lebih powerful dari Google Sheets |
 | **Ekosistem kaya** | Ribuan package siap pakai: Laravel Excel, Sanctum, Socialite, Horizon, Telescope, dll. |
-| **Keamanan mature** | CSRF protection, SQL injection prevention via Eloquent, rate limiting, middleware auth, enkripsi bcrypt bawaan |
+| **Keamanan mature** | CSRF protection, SQL injection prevention via Eloquent, rate limiting, middleware auth, OTP hash bcrypt bawaan, cookie HttpOnly |
 | **Queue & Scheduler** | Notifikasi email, export berat, dan proses batch dijalankan di background — tidak memblokir user |
 | **Cocok dengan cPanel** | Laravel berjalan sempurna di shared hosting cPanel dengan PHP 8.x + MySQL |
 | **Skalabilitas** | Jika ke depan butuh VPS/cloud, kode Laravel tidak perlu diubah — hanya konfigurasi server |
@@ -270,8 +271,7 @@ Sistem harus membaca spreadsheet ini via Google Sheets API saat proses import. S
        │
        ├──▶ Google Drive API   (penyimpanan dokumen & bukti klaim)
        ├──▶ Google Sheets API  (import data sumber — read-only)
-       ├──▶ Google OAuth 2.0   (login via Google)
-       └──▶ SMTP Server        (pengiriman notifikasi email)
+       └──▶ SMTP Server        (pengiriman OTP & notifikasi email)
 ```
 
 ### Struktur Proyek
@@ -283,7 +283,7 @@ insan-apu-backend/
 ├── app/
 │   ├── Http/
 │   │   ├── Controllers/Api/
-│   │   │   ├── AuthController.php
+│   │   │   ├── AuthController.php      # send-otp, verify-otp, logout
 │   │   │   ├── PegawaiController.php
 │   │   │   ├── CareerController.php
 │   │   │   ├── OrgChartController.php
@@ -392,8 +392,8 @@ Semua endpoint diawali `/api/v1/` dan dilindungi middleware `auth:sanctum` kecua
 
 | Method | Endpoint | Fungsi |
 |--------|----------|--------|
-| `POST` | `/auth/login` | Login Email/Password |
-| `POST` | `/auth/google` | Login via Google OAuth |
+| `POST` | `/auth/send-otp` | Kirim OTP ke email kantor |
+| `POST` | `/auth/verify-otp` | Verifikasi OTP & terbitkan token |
 | `POST` | `/auth/logout` | Logout & revoke token |
 | `GET` | `/dashboard/stats` | Data widget statistik |
 | `GET/POST` | `/pegawai` | Daftar & tambah karyawan |
@@ -593,65 +593,194 @@ Semua widget dapat dikonfigurasi (aktif/nonaktif, urutan, label, visibilitas per
 
 ### Mekanisme
 
-Sistem mendukung **dua metode login** yang dapat digunakan bergantian:
+Sistem menggunakan **satu metode login**: Email + OTP (One-Time Password). Tidak ada password permanen dan tidak ada login via Google. Setiap kali pengguna ingin masuk, sistem mengirimkan kode verifikasi baru ke email kantor yang sudah didaftarkan Admin.
 
-#### Metode 1 — Login dengan Google Account
+#### Alur Login OTP
 
-- Login via Google OAuth menggunakan **Laravel Socialite**
-- Setelah Google callback, Laravel membuat atau memperbarui data user di tabel `users`
-- Token **Laravel Sanctum** diterbitkan dan disimpan di localStorage/cookie frontend
-- Cocok untuk pengguna yang menggunakan akun Google (Gmail atau Google Workspace)
+```
+[1] User masukkan email kantor
+         │
+         ▼
+[2] Sistem validasi — apakah email terdaftar & aktif di tabel users?
+         │
+    ┌────┴────────────────────────┐
+   TIDAK                         YA
+    │                             │
+    ▼                             ▼
+Tampilkan pesan:          [3] Generate kode OTP (6 digit)
+"Email tidak terdaftar.        Simpan hash OTP + expiry (10 menit)
+ Hubungi Admin HR."            di tabel otp_tokens
+                               │
+                               ▼
+                         [4] Kirim email ke user via Laravel Mail
+                             Subject: "Kode Masuk Insan APU"
+                             Isi: "Kode Anda: 847291 (berlaku 10 menit)"
+                               │
+                               ▼
+                         [5] Halaman input OTP ditampilkan
+                               │
+                               ▼
+                         [6] User masukkan 6 digit kode
+                               │
+                    ┌──────────┴────────────────┐
+                 SALAH / EXPIRED              BENAR
+                    │                           │
+                    ▼                           ▼
+             Tampilkan error            [7] Laravel Sanctum
+             Sisa percobaan: N               terbitkan Bearer Token
+             (maks 5x → locked)             Simpan di HttpOnly cookie
+                                             │
+                                             ▼
+                                       [8] Redirect ke Dashboard
+```
 
-#### Metode 2 — Login dengan Email & Password
+#### Spesifikasi OTP
 
-- Untuk pengguna yang **tidak menggunakan Google/Gmail** (mis. email kantor non-Google, Yahoo, Outlook, dll.)
-- Admin mendaftarkan akun pengguna terlebih dahulu di modul **Manajemen User** dengan mengisi: email, nama lengkap, role, dan password awal
-- Password disimpan menggunakan **bcrypt** (Laravel default via `Hash::make()`) — tidak pernah disimpan dalam bentuk plain text
-- Pengguna login dengan email yang didaftarkan admin + password
-- Laravel menerbitkan token Sanctum setelah verifikasi berhasil
-- Fitur **Lupa Password**: Admin HR / Super Admin melakukan reset password dari panel Manajemen User; sistem mengirim password baru sementara ke email pengguna via Laravel Mail
+| Parameter | Nilai |
+|-----------|-------|
+| Format | 6 digit angka (`847291`) |
+| Masa berlaku | **10 menit** sejak dikirim |
+| Maksimum percobaan | **5 kali** salah → akun dikunci 15 menit |
+| Resend OTP | Tersedia setelah **60 detik** (countdown timer) |
+| Satu OTP aktif per user | OTP lama otomatis invalid saat OTP baru diminta |
+| Penyimpanan | Hash bcrypt OTP di tabel `otp_tokens` — tidak pernah disimpan plain text |
+| Pengiriman | Laravel Mail via SMTP (email kantor yang didaftarkan Admin) |
+
+#### Implementasi Laravel
+
+```php
+// Tabel otp_tokens
+Schema::create('otp_tokens', function (Blueprint $table) {
+    $table->id();
+    $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+    $table->string('token');          // bcrypt hash dari 6 digit OTP
+    $table->timestamp('expires_at');  // NOW() + 10 menit
+    $table->boolean('is_used')->default(false);
+    $table->timestamps();
+});
+
+// AuthController — kirim OTP
+public function sendOtp(Request $request) {
+    $user = User::where('email', $request->email)
+                ->where('is_active', true)->firstOrFail();
+    $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+    OtpToken::where('user_id', $user->id)->delete(); // invalidate lama
+    OtpToken::create([
+        'user_id'    => $user->id,
+        'token'      => Hash::make($otp),
+        'expires_at' => now()->addMinutes(10),
+    ]);
+    Mail::to($user->email)->send(new OtpMail($otp, $user->full_name));
+    return response()->json(['message' => 'OTP dikirim ke email Anda.']);
+}
+
+// AuthController — verifikasi OTP
+public function verifyOtp(Request $request) {
+    $user  = User::where('email', $request->email)->firstOrFail();
+    $token = OtpToken::where('user_id', $user->id)
+                     ->where('is_used', false)
+                     ->where('expires_at', '>', now())->latest()->first();
+    if (!$token || !Hash::check($request->otp, $token->token)) {
+        // increment failed attempt, lock if >= 5
+        abort(422, 'Kode OTP tidak valid atau sudah kadaluarsa.');
+    }
+    $token->update(['is_used' => true]);
+    $sanctumToken = $user->createToken('insan-apu')->plainTextToken;
+    return response()->json(['token' => $sanctumToken]);
+}
+```
+
+#### Email OTP yang Dikirim
+
+```
+Subject : Kode Masuk Insan APU
+
+Halo, [Nama Karyawan]
+
+Berikut kode verifikasi Anda untuk masuk ke aplikasi Insan APU:
+
+        ┌──────────────┐
+        │   8 4 7 2 9 1 │
+        └──────────────┘
+
+Kode ini berlaku selama 10 menit.
+Jangan bagikan kode ini kepada siapa pun, termasuk Admin HR.
+
+Jika Anda tidak meminta kode ini, abaikan email ini.
+
+— Tim Insan APU · LAZWaf Al Azhar
+```
 
 #### Manajemen Akun oleh Admin
 
 Di halaman **Manajemen User**, Super Admin / Admin HR dapat:
-- Tambah akun baru (pilih metode login: Google atau Email/Password)
-- Set / reset password (untuk akun Email/Password)
-- Nonaktifkan akun
-- Ubah role pengguna
-- Paksa logout / revoke semua token Sanctum pengguna
+- Tambah akun baru — cukup isi: nama lengkap, email kantor, role, dan divisi
+- Nonaktifkan akun (user tidak bisa login meski punya email terdaftar)
+- Ubah role dan divisi pengguna
+- Paksa logout — revoke semua token Sanctum aktif pengguna
+- Lihat riwayat login terakhir
+
+> **Tidak ada password yang perlu dikelola Admin.** Keamanan sepenuhnya bergantung pada akses ke email kantor karyawan.
 
 #### Sesi & Keamanan
 
-- Semua request API menggunakan **Bearer Token** (Laravel Sanctum) di header `Authorization`
-- Token disimpan di `localStorage` frontend (Astro) atau cookie `HttpOnly`
-- Durasi token: **8 jam** (dapat dikonfigurasi via `sanctum.expiration` di `config/sanctum.php`)
-- Login gagal 5 kali berturut-turut → akun dikunci sementara 15 menit (via Laravel `RateLimiter`)
+| Parameter | Nilai |
+|-----------|-------|
+| Token type | Laravel Sanctum Bearer Token |
+| Penyimpanan token | Cookie `HttpOnly` (lebih aman dari localStorage) |
+| Durasi sesi | **8 jam** — dapat dikonfigurasi via `sanctum.expiration` |
+| Setelah expired | User diminta login ulang (kirim OTP baru) |
+| Rate limiting | Maks 5x OTP salah → locked 15 menit (via Laravel `RateLimiter`) |
+| Resend limit | Maks 3x request OTP per 30 menit per email |
 
-### Halaman Login
+### Halaman Login (Dua Langkah)
+
+**Langkah 1 — Input Email:**
 
 ```
 ┌──────────────────────────────────────────┐
 │        🏢 Insan APU – LAZWaf Al Azhar    │
 ├──────────────────────────────────────────┤
 │                                          │
-│  [G]  Masuk dengan Google                │
+│  Masukkan email kantor Anda untuk        │
+│  menerima kode verifikasi.               │
 │                                          │
-│  ──────────── atau ────────────          │
+│  Email : [______________________]        │
 │                                          │
-│  Email   : [____________________]        │
-│  Password: [____________________]        │
+│  [     Kirim Kode Verifikasi     ]       │
 │                                          │
-│  [     Masuk     ]                       │
-│                                          │
-│  Lupa password? Hubungi Admin HR         │
+│  Belum terdaftar? Hubungi Admin HR       │
 │                                          │
 └──────────────────────────────────────────┘
 ```
 
-- Tampilkan logo **Insan APU** dan nama organisasi LAZWaf Al Azhar
-- Dua opsi login tersedia dalam satu halaman (tombol Google + form email/password)
-- Pesan error jika email tidak terdaftar atau password salah: tampilkan instruksi menghubungi Admin HR
-- Tidak menampilkan pesan spesifik "email tidak ada" atau "password salah" secara terpisah (untuk keamanan) — cukup: *"Email atau password tidak valid"*
+**Langkah 2 — Input OTP:**
+
+```
+┌──────────────────────────────────────────┐
+│        🏢 Insan APU – LAZWaf Al Azhar    │
+├──────────────────────────────────────────┤
+│                                          │
+│  Kode verifikasi telah dikirim ke:       │
+│  r***@alazhar.or.id                      │
+│                                          │
+│  [ _ ][ _ ][ _ ][ _ ][ _ ][ _ ]         │
+│         (masukkan 6 digit kode)          │
+│                                          │
+│  [          Verifikasi          ]        │
+│                                          │
+│  Kirim ulang kode (59 detik...)          │
+│  < Ganti email                           │
+│                                          │
+│  ⚠ Kode berlaku 10 menit                │
+└──────────────────────────────────────────┘
+```
+
+- Email ditampilkan dalam format **masked** (`r***@alazhar.or.id`) untuk keamanan
+- Input OTP berupa 6 kotak terpisah — auto-focus ke kotak berikutnya saat digit diisi
+- Auto-submit saat digit ke-6 diisi
+- Countdown timer "Kirim ulang kode (59 detik...)" — tombol resend aktif setelah 60 detik
+- Tombol "Ganti email" kembali ke langkah 1
 
 ### Audit Login
 
@@ -661,9 +790,9 @@ Setiap percobaan login (berhasil maupun gagal) dicatat di tabel `audit_logs` (My
 |-------|--------|
 | Timestamp | `2026-06-23 08:30:00` |
 | Email | `user@alazhar.or.id` |
-| Metode Login | `GOOGLE` / `EMAIL_PASSWORD` |
-| Status | `SUCCESS` / `FAILED` |
-| Alasan Gagal | `Password salah` / `Akun tidak aktif` / `Akun terkunci` |
+| Metode Login | `OTP_EMAIL` |
+| Status | `SUCCESS` / `FAILED` / `OTP_EXPIRED` / `OTP_INVALID` / `LOCKED` |
+| Alasan Gagal | `OTP kadaluarsa` / `OTP salah` / `Akun tidak aktif` / `Akun terkunci` |
 | User Agent | `Chrome/125.0` |
 
 ---
@@ -1763,6 +1892,7 @@ Seluruh data sistem disimpan di **MySQL 8** melalui Laravel Eloquent ORM. Migras
 | `roles` | Definisi peran |
 | `permissions` | Izin per role per modul |
 | `personal_access_tokens` | Token Sanctum (auto-generated Laravel) |
+| `otp_tokens` | Kode OTP sementara untuk proses login |
 | `master_divisi` | Data divisi |
 | `master_units` | Data unit dalam divisi |
 | `master_levels` | Daftar level jabatan (1–5) |
@@ -1870,14 +2000,26 @@ updated_at      TIMESTAMP
 
 ```sql
 id              BIGINT UNSIGNED PK AUTO_INCREMENT
-email           VARCHAR(150) UNIQUE NOT NULL
+email           VARCHAR(150) UNIQUE NOT NULL   -- email kantor yang didaftarkan Admin
 full_name       VARCHAR(150)
-password        VARCHAR(255)         -- bcrypt hash, null jika login Google only
-google_id       VARCHAR(100)         -- null jika login Email/Password only
-role_id         BIGINT UNSIGNED      -- FK → roles.id
-employee_id     BIGINT UNSIGNED      -- FK → pegawai.id (nullable)
+role_id         BIGINT UNSIGNED                -- FK → roles.id
+employee_id     BIGINT UNSIGNED                -- FK → pegawai.id (nullable)
 is_active       BOOLEAN DEFAULT TRUE
 last_login      TIMESTAMP
+created_at      TIMESTAMP
+updated_at      TIMESTAMP
+```
+
+> Tidak ada kolom `password` atau `google_id` — autentikasi sepenuhnya via OTP ke email kantor.
+
+### Tabel: `otp_tokens` — Skema Kolom
+
+```sql
+id              BIGINT UNSIGNED PK AUTO_INCREMENT
+user_id         BIGINT UNSIGNED NOT NULL       -- FK → users.id (cascade delete)
+token           VARCHAR(255) NOT NULL          -- bcrypt hash dari 6 digit OTP
+expires_at      TIMESTAMP NOT NULL             -- NOW() + 10 menit
+is_used         BOOLEAN DEFAULT FALSE
 created_at      TIMESTAMP
 updated_at      TIMESTAMP
 ```
@@ -1896,7 +2038,7 @@ updated_at      TIMESTAMP
 | FR-004 | Preview & validasi sebelum import dieksekusi | Import Data |
 | FR-005 | Tampilkan widget statistik di landing page | Dashboard |
 | FR-006 | Konfigurasi widget di Master Akses | Master Akses |
-| FR-007 | Login via Google OAuth + Email/Password (dual-mode) | Auth |
+| FR-007 | Login via Email + OTP (kode 6 digit dikirim ke email kantor) | Auth |
 | FR-008 | CRUD lengkap data pegawai dengan form multi-step | Data Pegawai |
 | FR-009 | Auto-hitung masa kerja (tahun, bulan, hari) | Data Pegawai |
 | FR-010 | Timeline riwayat karir (normalisasi dari 12 career columns) | Karir |
