@@ -14,7 +14,9 @@ export const PegawaiTable: React.FC = () => {
   const [selectedDivision, setSelectedDivision] = useState("Divisi (Semua)");
   const [selectedUnit, setSelectedUnit] = useState("Unit (Semua)");
   const [selectedStatus, setSelectedStatus] = useState("Status (Semua)");
-  const [selectedJabatan, setSelectedJabatan] = useState("Jabatan (Semua)");
+  const [selectedJabatan, setSelectedJabatan] = useState("Job Level (Semua)");
+  const [selectedGender, setSelectedGender] = useState("Gender (Semua)");
+  const [selectedActive, setSelectedActive] = useState("Status Aktif (Semua)");
   const [quickFilter, setQuickFilter] = useState<"ALL" | "TETAP" | "KONTRAK" | "RELAWAN">("ALL");
 
   // Selection list
@@ -22,7 +24,7 @@ export const PegawaiTable: React.FC = () => {
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;
+  const itemsPerPage = 8;
 
   const fetchEmployees = async () => {
     try {
@@ -46,24 +48,19 @@ export const PegawaiTable: React.FC = () => {
     return ["Divisi (Semua)", ...Array.from(new Set(employees.map((e) => e.departement).filter(Boolean)))];
   }, [employees]);
 
-  // Using current_position as unit mapping for now, as API might not have explicit unit or it's similar
   const units = useMemo(() => {
-    return ["Unit (Semua)", ...Array.from(new Set(employees.map((e) => "Pusat").filter(Boolean)))];
+    return ["Unit (Semua)", ...Array.from(new Set(employees.map((e) => e.unit || "Pusat").filter(Boolean)))];
   }, [employees]);
 
   const jabatans = useMemo(() => {
-    return ["Jabatan (Semua)", ...Array.from(new Set(employees.map((e) => e.job_level).filter(Boolean)))];
+    return ["Job Level (Semua)", ...Array.from(new Set(employees.map((e) => e.job_level).filter(Boolean)))];
   }, [employees]);
 
   // Dynamic status counts for quick chips
-  const baseTetapOffset = 83;
-  const baseKontrakOffset = 28;
-  const baseRelawanOffset = 7;
-
-  const tetapCount = employees.filter((e) => e.employment_status.toUpperCase() === "TETAP").length + baseTetapOffset;
-  const kontrakCount = employees.filter((e) => e.employment_status.toUpperCase() === "KONTRAK").length + baseKontrakOffset;
-  const relawanCount = employees.filter((e) => e.employment_status.toUpperCase() === "RELAWAN").length + baseRelawanOffset;
-  const totalCount = tetapCount + kontrakCount + relawanCount;
+  const tetapCount = employees.filter((e) => e.employment_status.toUpperCase() === "TETAP").length;
+  const kontrakCount = employees.filter((e) => e.employment_status.toUpperCase() === "KONTRAK").length;
+  const relawanCount = employees.filter((e) => e.employment_status.toUpperCase() === "RELAWAN").length;
+  const totalCount = employees.length;
 
   // Filtered employees
   const filteredEmployees = useMemo(() => {
@@ -76,12 +73,21 @@ export const PegawaiTable: React.FC = () => {
       const matchesSearch =
         emp.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         emp.employee_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        emp.current_position.toLowerCase().includes(searchQuery.toLowerCase());
+        emp.current_position.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (emp.nik && emp.nik.includes(searchQuery));
 
       const matchesDivision = selectedDivision === "Divisi (Semua)" || emp.departement === selectedDivision;
-      const matchesUnit = selectedUnit === "Unit (Semua)" || true; // Mocked unit matching
+      const matchesUnit = selectedUnit === "Unit (Semua)" || emp.unit === selectedUnit || (!emp.unit && selectedUnit === "Pusat");
       const matchesStatusDropdown = selectedStatus === "Status (Semua)" || emp.employment_status.toUpperCase() === selectedStatus;
-      const matchesJabatan = selectedJabatan === "Jabatan (Semua)" || emp.job_level === selectedJabatan;
+      const matchesJabatan = selectedJabatan === "Job Level (Semua)" || emp.job_level === selectedJabatan;
+      
+      const matchesGender = selectedGender === "Gender (Semua)" || 
+                           (selectedGender === "Laki-laki" && emp.gender === 'L') ||
+                           (selectedGender === "Perempuan" && emp.gender === 'P');
+                           
+      const matchesActive = selectedActive === "Status Aktif (Semua)" || 
+                           (selectedActive === "Aktif" && emp.is_active) ||
+                           (selectedActive === "Nonaktif" && !emp.is_active);
 
       const empStatusUpper = emp.employment_status.toUpperCase();
       const matchesQuick =
@@ -96,6 +102,8 @@ export const PegawaiTable: React.FC = () => {
         matchesUnit &&
         matchesStatusDropdown &&
         matchesJabatan &&
+        matchesGender &&
+        matchesActive &&
         matchesQuick
       );
     });
@@ -106,6 +114,8 @@ export const PegawaiTable: React.FC = () => {
     selectedUnit,
     selectedStatus,
     selectedJabatan,
+    selectedGender,
+    selectedActive,
     quickFilter,
     session
   ]);
@@ -219,10 +229,10 @@ export const PegawaiTable: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="font-sans text-2xl font-extrabold text-[#0b1c30]">Data Karyawan</h2>
-          <p className="text-xs text-[#737686] mt-0.5">Kelola informasi penempatan, berkas, dan masa kontrak</p>
+          <p className="text-xs text-[#737686] mt-0.5">Kelola informasi penempatan, profil, dan masa kontrak</p>
         </div>
         <div className="flex gap-3">
           <button
@@ -246,10 +256,10 @@ export const PegawaiTable: React.FC = () => {
       </div>
 
       {/* Filter and Table Card */}
-      <div className="bg-white rounded-[24px] border border-blue-50/50 shadow-sm shadow-blue-100/50 overflow-hidden">
+      <div className="bg-white rounded-[24px] border border-blue-50/50 shadow-sm shadow-blue-100/50 overflow-hidden flex flex-col">
         {/* Filter bar */}
-        <div className="p-6 border-b border-blue-50/50 bg-[#f8f9ff]/50">
-          <div className="flex flex-col xl:flex-row xl:items-center gap-4 justify-between mb-4">
+        <div className="p-6 border-b border-blue-50/50 bg-[#f8f9ff]/50 space-y-4">
+          <div className="flex flex-col xl:flex-row xl:items-center gap-4 justify-between">
             <div className="relative w-full max-w-sm">
               <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#737686]">
                 search
@@ -257,9 +267,9 @@ export const PegawaiTable: React.FC = () => {
               <input
                 type="text"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
                 className="w-full pl-12 pr-6 py-2.5 bg-white border border-blue-100 focus:border-[#0053d0]/30 rounded-full font-sans text-sm text-[#0b1c30] placeholder-[#737686]/60 transition-all duration-200 outline-none shadow-sm"
-                placeholder="Cari nama, ID, posisi..."
+                placeholder="Cari nama, ID, NIK, posisi..."
               />
             </div>
             
@@ -303,11 +313,11 @@ export const PegawaiTable: React.FC = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 flex-1 max-w-3xl">
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
             <select
               value={selectedDivision}
               onChange={(e) => { setSelectedDivision(e.target.value); setCurrentPage(1); }}
-              className="py-2.5 pl-4 pr-8 bg-white border border-blue-100 rounded-full font-semibold text-xs text-[#0b1c30] focus:border-[#0053d0] focus:ring-1 focus:ring-[#0053d0] outline-none cursor-pointer"
+              className="py-2.5 pl-4 pr-8 bg-white border border-blue-100 rounded-xl font-semibold text-xs text-[#0b1c30] focus:border-[#0053d0] focus:ring-1 focus:ring-[#0053d0] outline-none cursor-pointer"
             >
               {divisions.map((div) => (
                 <option key={div} value={div}>{div}</option>
@@ -316,7 +326,7 @@ export const PegawaiTable: React.FC = () => {
             <select
               value={selectedUnit}
               onChange={(e) => { setSelectedUnit(e.target.value); setCurrentPage(1); }}
-              className="py-2.5 pl-4 pr-8 bg-white border border-blue-100 rounded-full font-semibold text-xs text-[#0b1c30] focus:border-[#0053d0] focus:ring-1 focus:ring-[#0053d0] outline-none cursor-pointer"
+              className="py-2.5 pl-4 pr-8 bg-white border border-blue-100 rounded-xl font-semibold text-xs text-[#0b1c30] focus:border-[#0053d0] focus:ring-1 focus:ring-[#0053d0] outline-none cursor-pointer"
             >
               {units.map((un) => (
                 <option key={un} value={un}>{un}</option>
@@ -325,7 +335,7 @@ export const PegawaiTable: React.FC = () => {
             <select
               value={selectedStatus}
               onChange={(e) => { setSelectedStatus(e.target.value); setCurrentPage(1); }}
-              className="py-2.5 pl-4 pr-8 bg-white border border-blue-100 rounded-full font-semibold text-xs text-[#0b1c30] focus:border-[#0053d0] focus:ring-1 focus:ring-[#0053d0] outline-none cursor-pointer"
+              className="py-2.5 pl-4 pr-8 bg-white border border-blue-100 rounded-xl font-semibold text-xs text-[#0b1c30] focus:border-[#0053d0] focus:ring-1 focus:ring-[#0053d0] outline-none cursor-pointer"
             >
               <option value="Status (Semua)">Status (Semua)</option>
               <option value="TETAP">TETAP</option>
@@ -335,11 +345,29 @@ export const PegawaiTable: React.FC = () => {
             <select
               value={selectedJabatan}
               onChange={(e) => { setSelectedJabatan(e.target.value); setCurrentPage(1); }}
-              className="py-2.5 pl-4 pr-8 bg-white border border-blue-100 rounded-full font-semibold text-xs text-[#0b1c30] focus:border-[#0053d0] focus:ring-1 focus:ring-[#0053d0] outline-none cursor-pointer"
+              className="py-2.5 pl-4 pr-8 bg-white border border-blue-100 rounded-xl font-semibold text-xs text-[#0b1c30] focus:border-[#0053d0] focus:ring-1 focus:ring-[#0053d0] outline-none cursor-pointer"
             >
               {jabatans.map((jab) => (
                 <option key={jab} value={jab}>{jab}</option>
               ))}
+            </select>
+            <select
+              value={selectedGender}
+              onChange={(e) => { setSelectedGender(e.target.value); setCurrentPage(1); }}
+              className="py-2.5 pl-4 pr-8 bg-white border border-blue-100 rounded-xl font-semibold text-xs text-[#0b1c30] focus:border-[#0053d0] focus:ring-1 focus:ring-[#0053d0] outline-none cursor-pointer"
+            >
+              <option value="Gender (Semua)">Gender (Semua)</option>
+              <option value="Laki-laki">Laki-laki</option>
+              <option value="Perempuan">Perempuan</option>
+            </select>
+            <select
+              value={selectedActive}
+              onChange={(e) => { setSelectedActive(e.target.value); setCurrentPage(1); }}
+              className="py-2.5 pl-4 pr-8 bg-white border border-blue-100 rounded-xl font-semibold text-xs text-[#0b1c30] focus:border-[#0053d0] focus:ring-1 focus:ring-[#0053d0] outline-none cursor-pointer"
+            >
+              <option value="Status Aktif (Semua)">Status Aktif (Semua)</option>
+              <option value="Aktif">Aktif</option>
+              <option value="Nonaktif">Nonaktif</option>
             </select>
           </div>
         </div>
@@ -362,7 +390,7 @@ export const PegawaiTable: React.FC = () => {
                 </th>
                 <th className="px-6 py-4">Karyawan</th>
                 <th className="px-6 py-4">Divisi / Posisi</th>
-                <th className="px-6 py-4">Jabatan</th>
+                <th className="px-6 py-4">Job Level</th>
                 <th className="px-6 py-4">Status</th>
                 <th className="px-6 py-4">Masa Kerja</th>
                 <th className="px-6 py-4 text-right">Aksi</th>
@@ -407,8 +435,9 @@ export const PegawaiTable: React.FC = () => {
                             <p
                               onClick={() => window.location.href = `/pegawai/${emp.id}`}
                               className="font-bold text-sm text-[#0b1c30] hover:text-[#0053d0] transition-colors cursor-pointer"
+                              title={emp.full_name}
                             >
-                              {emp.full_name}
+                              {emp.full_name.length > 25 ? emp.full_name.substring(0, 25) + "..." : emp.full_name}
                             </p>
                             <div className="flex items-center gap-2 mt-0.5">
                               <p className="font-mono text-[10px] text-[#737686]">
@@ -424,11 +453,13 @@ export const PegawaiTable: React.FC = () => {
 
                       <td className="px-6 py-4.5">
                         <p className="font-bold text-[#0b1c30]">{emp.departement}</p>
-                        <p className="text-[#737686] text-[10px] mt-0.5">{emp.current_position}</p>
+                        <p className="text-[#737686] text-[10px] mt-0.5" title={emp.current_position}>
+                          {emp.current_position.length > 30 ? emp.current_position.substring(0, 30) + "..." : emp.current_position}
+                        </p>
                       </td>
 
                       <td className="px-6 py-4.5">
-                        <span className="font-semibold text-[#434654]">{emp.job_level}</span>
+                        <span className="font-semibold text-[#434654]">{emp.level} <br/><span className="text-[10px] text-[#737686]">{emp.job_level}</span></span>
                       </td>
 
                       <td className="px-6 py-4.5">
@@ -500,7 +531,7 @@ export const PegawaiTable: React.FC = () => {
         </div>
 
         {/* Pagination Bar */}
-        <div className="p-6 border-t border-blue-50/50 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white text-xs text-[#737686]">
+        <div className="p-6 border-t border-blue-50/50 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white text-xs text-[#737686] mt-auto">
           <div>
             Menampilkan <span className="font-bold text-[#0b1c30]">
               {filteredEmployees.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1}

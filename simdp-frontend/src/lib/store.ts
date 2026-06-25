@@ -1,5 +1,7 @@
 import { atom } from 'nanostores';
 
+export const $isSidebarOpen = atom<boolean>(false);
+
 export interface UserSession {
   session_token: string;
   expires_at: number;

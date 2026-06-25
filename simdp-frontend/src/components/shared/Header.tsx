@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useStore } from '@nanostores/react';
-import { $userSession } from '../../lib/store';
+import { $userSession, $isSidebarOpen } from '../../lib/store';
 
 interface HeaderProps {
   title: string;
@@ -30,15 +30,22 @@ export const Header: React.FC<HeaderProps> = ({ title }) => {
   ];
 
   return (
-    <header className="fixed top-0 right-0 left-[260px] h-[80px] flex justify-between items-center px-10 z-30 bg-white/80 backdrop-blur-md border-b border-blue-50/50 shadow-sm shadow-blue-100/10">
+    <header className="fixed top-0 right-0 left-0 lg:left-[260px] h-[80px] flex justify-between items-center px-4 lg:px-10 z-30 bg-white/80 backdrop-blur-md border-b border-blue-50/50 shadow-sm shadow-blue-100/10 transition-all duration-300">
       {/* Left section: Breadcrumb/Page title and Search */}
-      <div className="flex items-center gap-6 flex-1 max-w-xl">
+      <div className="flex items-center gap-4 lg:gap-6 flex-1 max-w-xl">
+        <button 
+          onClick={() => $isSidebarOpen.set(true)}
+          className="lg:hidden text-[#0b1c30] p-2 hover:bg-blue-50 rounded-full transition-colors"
+        >
+          <span className="material-symbols-outlined text-2xl">menu</span>
+        </button>
+        
         <div className="text-xl font-bold text-[#0053d0] hidden lg:block mr-2 shrink-0">
           {title}
         </div>
         
         {/* Search input field */}
-        <div className="relative w-full">
+        <div className="relative w-full hidden sm:block">
           <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#737686]">
             search
           </span>
